@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Объединенный инструмент для работы</title>
+
+  <!-- Подключение шрифтов -->
+  <style>
+    @font-face {
+      font-family: 'YS Text';
+      src: url('YS Text-Regular.ttf') format('truetype');
+    }
+
+    @font-face {
+      font-family: 'Druk Wide';
+      src: url('Druk Wide Cyr Super.otf') format('opentype');
+    }
+
+    @font-face {
+      font-family: 'Roboto Mono';
+      src: url('RobotoMono-Regular.ttf') format('truetype');
+    }
+  </style>
+
+  <!-- Стили -->
+  <style>
+    body {
+      font-family: 'YS Text', Arial, sans-serif;
+      background-color: #EFF0E9;
+      margin: 0;
+      padding: 0;
+    }
+
+    .header {
+      font-family: 'Druk Wide', Arial, sans-serif;
+      background-color: #032B44;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+    }
+
+    .header-left {
+      font-size: 24px;
+    }
+
+    .header-right button {
+      background-color: white;
+      color: #032B44;
+      padding: 10px 20px;
+      margin-left: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: 'YS Text', Arial, sans-serif;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .header-right button:hover {
+      background-color: #EFF0E9;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .main {
+      padding: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .button-container,
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .button-container button,
+    .buttons button {
+      background-color: #005BFF;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'YS Text', Arial, sans-serif;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .button-container button:hover,
+    .buttons button:hover {
+      background-color: #032B44;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    form,
+    .result-container,
+    .dialog-container {
+      background: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    textarea,
+    input[type="text"],
+    input[type="url"],
+    select {
+      width: 100%;
+      padding: 15px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      resize: vertical;
+    }
+
+    button[type="submit"],
+    button[type="button"] {
+      background-color: #005BFF;
+      color: white;
+      padding: 12px 24px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s, box-shadow 0.3s;
+    }
+
+    button[type="submit"]:hover,
+    button[type="button"]:hover {
+      background-color: #032B44;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .result pre,
+    .dialog pre {
+      background: #f5f5f5;
+      border: 1px solid #ccc;
+      padding: 15px;
+      border-radius: 5px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      font-size: 1rem;
+      font-family: 'Roboto Mono', monospace;
+      color: #333;
+      max-height: 300px;
+      overflow: auto;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #0DA251;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 1000;
+    }
+
+    .notification.show {
+      opacity: 1;
+    }
+
+    .footer {
+      background-color: #032B44;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+    }
+
+    .footer a {
+      color: white;
+      text-decoration: none;
+    }
+
+    .marquee {
+      display: block;
+      width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      font-family: 'Druk Wide', Arial, sans-serif;
+      color: white;
+      font-size: 16px;
+    }
+
+    .marquee span {
+      display: inline-block;
+      padding-left: 100%;
+      animation: scroll 20s infinite linear;
+    }
+
+    @keyframes scroll {
+      0% {
+        transform: translate(0, 0);
+      }
+      100% {
+        transform: translate(-100%, 0);
+      }
+    }
+
+    .center-image {
+      display: block;
+      margin: 0 auto;
+      width: 100%;
+      max-width: 300px;
+      height: auto;
+    }
+
+    .key-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 15px;
+      background-color: #f9f9f9;
+      margin: 10px 0;
+      border-radius: 8px;
+      font-family: 'YS Text', Arial, sans-serif;
+    }
+
+    .key-row input[type="text"] {
+      flex: 1 1 40%;
+      margin: 5px;
+    }
+
+    .key-row .copy-button,
+    .key-row .copy-text-button {
+      background-color: #005BFF;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+      font-family: 'YS Text', Arial, sans-serif;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .key-row .copy-button:hover,
+    .key-row .copy-text-button:hover {
+      background-color: #032B44;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .notice {
+      background-color: #EEF3ED;
+      color: black;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    .notice a {
+      color: #42A663;
+      text-decoration: none;
+    }
+
+    /* Адаптивность */
+    @media (max-width: 600px) {
+      .key-row {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-left">
+      Объединенный инструмент
+    </div>
+    <nav class="header-right">
+      <button id="mathematics-button">Форматирование текста</button>
+      <button id="tests-button">Тесты</button>
+      <button id="autotests-button">Автотесты</button>
+      <button id="keygen-button">Генератор ключей</button>
+    </nav>
+  </header>
+
+  <main class="main">
+    <!-- Раздел "Форматирование текста" -->
+    <div id="mathematics-container" class="hidden">
+      <!-- Содержимое из первого сайта для форматирования текста -->
+      <form id="math-form">
+        <label for="text-input">Введите ваш текст</label>
+        <textarea id="text-input" name="text" placeholder="Вставьте текст с формулами или диалог"></textarea>
+        <button type="submit">Форматировать</button>
+      </form>
+      <div class="result-container">
+        <div class="result-header">
+          <p>Здесь будет результат:</p>
+          <button id="copy-button">Скопировать результат</button>
+        </div>
+        <pre class="result">Прямо тут</pre>
+      </div>
+      <div class="dialog-container" style="display: none;">
+        <div class="result-header">
+          <p>Форматированный диалог:</p>
+          <button id="copy-dialog-button">Скопировать диалог</button>
+        </div>
+        <pre class="dialog">Здесь будет форматированный диалог</pre>
+      </div>
+    </div>
+
+    <!-- Раздел "Тесты" -->
+    <div id="tests-container" class="hidden">
+      <div class="button-container">
+        <button id="problem-marker-button">Маркер Проблемы</button>
+        <button id="macaroni-button">Макароны</button>
+      </div>
+
+      <!-- Маркер Проблемы -->
+      <div id="problem-marker-container" class="hidden">
+        <div class="button-container">
+          <button id="single-choice-button">Одиночный</button>
+          <button id="multiple-choice-button">Множественный</button>
+        </div>
+        <form id="problem-form" class="hidden">
+          <label for="test-text-input">Введите текст ответов</label>
+          <textarea id="test-text-input" name="test-text" placeholder="Вставьте текст ответов"></textarea>
+          <button type="submit">Форматировать</button>
+        </form>
+        <div id="result-container" class="result-container hidden">
+          <div class="result-header">
+            <p>Здесь будет результат:</p>
+            <button id="test-copy-button">Скопировать результат</button>
+          </div>
+          <pre class="result" id="test-result">Прямо тут</pre>
+        </div>
+      </div>
+
+      <!-- Макароны -->
+      <div id="macaroni-container" class="hidden">
+        <form id="macaroni-form">
+          <label for="left-input">Левая часть</label>
+          <textarea id="left-input" name="left" placeholder="Введите текст левой части"></textarea>
+          <label for="right-input">Правая часть</label>
+          <textarea id="right-input" name="right" placeholder="Введите текст правой части"></textarea>
+          <label for="answer-input">Правильный ответ</label>
+          <textarea id="answer-input" name="answer" placeholder="Введите правильные ответы в формате (0,3),(1,4)"></textarea>
+          <button type="submit">Форматировать</button>
+        </form>
+        <div id="macaroni-result-container" class="result-container hidden">
+          <div class="result-header">
+            <p>Здесь будет результат:</p>
+            <button id="macaroni-copy-button">Скопировать результат</button>
+          </div>
+          <pre class="result" id="macaroni-result">Прямо тут</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Раздел "Автотесты" -->
+    <div id="autotests-container" class="hidden">
+      <form id="autotests-form">
+        <label for="tag-input">Тег команды тестописателей</label>
+        <input type="text" id="tag-input" name="tag" placeholder="@тег_команды + @тег_ответственного_от_команды_курса">
+        <label for="path-input">Полный путь к уроку в админке</label>
+        <input type="text" id="path-input" name="path" placeholder="Название профы/номер и название трека/Название курса/Название темы/Название урока/Номер упражнения (или задачи)">
+        <label for="admin-link-input">Ссылка на админку</label>
+        <input type="url" id="admin-link-input" name="admin-link" placeholder="Введите ссылку">
+        <label for="lesson-link-input">Ссылка на урок в Notion или Wiki</label>
+        <input type="url" id="lesson-link-input" name="lesson-link" placeholder="Введите ссылку">
+        <label for="autotest-code-input">Код автотеста</label>
+        <textarea id="autotest-code-input" name="autotest-code" placeholder="Введите код автотеста"></textarea>
+        <button type="submit">Форматировать</button>
+      </form>
+      <div class="result-container">
+        <div class="result-header">
+          <p>Здесь будет результат:</p>
+          <button id="autotest-copy-button">Скопировать результат</button>
+        </div>
+        <pre class="result" id="autotest-result">Прямо тут</pre>
+      </div>
+    </div>
+
+    <!-- Раздел "Генератор ключей" -->
+    <div id="keygen-container" class="hidden">
+      <!-- Здесь содержимое из второго сайта -->
+      <div class="buttons">
+        <button onclick="showAssessmentFields()">Ассессменты Грейда</button>
+        <button onclick="showPopupFields()">Попап</button>
+        <button onclick="showReviewStatusFields()">Статусы ревью</button>
+        <button onclick="showCharactersFields()">Персонажи</button>
+        <button onclick="showTestResultsFields()">Окно с результатами тестов</button>
+      </div>
+
+      <!-- Ассессменты -->
+      <div id="assessment-fields" class="hidden">
+        <img id="assessment-image" src="ass.png" alt="Assessment" class="center-image">
+        <input type="text" id="course-slug" placeholder="Укажи слаг курса">
+        <input type="number" id="module-count" placeholder="Укажи количество модулей курса">
+        <textarea id="course-links" placeholder="Вставь ссылку на ассессмент. Если их несколько, то каждую ссылку вставь с новой строки"></textarea>
+        <textarea id="module-names" placeholder="Укажи названия модулей курса. Каждый модуль нужно написать с новой строки"></textarea>
+        <button onclick="generateKeys()">Сгенерировать ключики 🔑</button>
+
+        <div id="assessment-generated-keys" class="hidden">
+          <div class="keys">
+            <!-- Сгенерированные ключи ассесментов появятся здесь -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Другие разделы аналогично -->
+      <!-- Попап -->
+      <div id="popup-fields" class="hidden">
+        <img id="popup-image" src="popup.png" alt="Popup Image" class="center-image">
+        <input type="text" id="course-slug-popup" placeholder="Укажи слаг курса">
+        <button onclick="generatePopupKeys()">Сгенерировать ключи 🔑</button>
+
+        <div id="popup-generated-keys" class="hidden">
+          <div class="keys">
+            <!-- Сгенерированные ключи попапа появятся здесь -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Статусы ревью -->
+      <div id="review-status-fields" class="hidden">
+        <img src="review.png" alt="Review Status" class="center-image">
+        <input type="text" id="profession-slug" placeholder="Введи слаг профессии">
+        <button onclick="generateReviewKeys()">Сгенерировать ключи 🔑</button>
+
+        <div id="review-generated-keys" class="hidden">
+          <div class="keys">
+            <!-- Сгенерированные ключи статусов ревью появятся здесь -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Персонажи -->
+      <div id="characters-fields" class="hidden">
+        <div class="notice">
+          Обязательно добавь тег персонажа в ключе – <a href="https://tanker.yandex-team.ru/project/praktikum/keyset/common/key/dialog.characters?branch=production" target="_blank">сюды</a>
+        </div>
+        <input type="text" id="character-tag" placeholder="Напиши сюда тег персонажа">
+        <input type="text" id="character-name" placeholder="Напиши сюда имя персонажа">
+        <input type="text" id="character-avatar" placeholder="Вставь сюда ссылку на аватарку персонажа с S3">
+        <button onclick="generateCharacterKeys()">Сгенерировать ключи 🔑</button>
+
+        <div id="characters-generated-keys" class="hidden">
+          <div class="keys">
+            <!-- Сгенерированные ключи персонажей появятся здесь -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Результаты тестов -->
+      <div id="test-results-fields" class="hidden">
+        <select id="test-results-type" onchange="showTestResultsOptions()">
+          <option value="">Выберите тип ключей</option>
+          <option value="open-entrance">Ключи для открытия входного результата</option>
+          <option value="open-exit">Ключи для открытия выходного результата</option>
+          <option value="display-entrance">Ключи для вывода входного результата</option>
+          <option value="display-exit">Ключи для вывода выходного результата</option>
+        </select>
+        <img id="test-results-image" src="" alt="" class="center-image hidden">
+
+        <!-- Поля для ввода слага профессии -->
+        <div id="test-results-open-entrance-fields" class="hidden">
+          <input type="text" id="test-results-open-entrance-profession-slug" placeholder="Напиши сюда слаг профессии">
+          <button onclick="generateTestResultsOpenEntranceKeys()">Сгенерировать ключи 🔑</button>
+        </div>
+
+        <div id="test-results-open-exit-fields" class="hidden">
+          <input type="text" id="test-results-open-exit-profession-slug" placeholder="Напиши сюда слаг профессии">
+          <button onclick="generateTestResultsOpenExitKeys()">Сгенерировать ключи 🔑</button>
+        </div>
+
+        <div id="test-results-display-entrance-fields" class="hidden">
+          <input type="text" id="test-results-display-entrance-profession-slug" placeholder="Напиши сюда слаг профессии">
+          <button onclick="generateTestResultsDisplayEntranceKeys()">Сгенерировать ключи 🔑</button>
+        </div>
+
+        <div id="test-results-display-exit-fields" class="hidden">
+          <input type="text" id="test-results-display-exit-profession-slug" placeholder="Напиши сюда слаг профессии">
+          <button onclick="generateTestResultsDisplayExitKeys()">Сгенерировать ключи 🔑</button>
+        </div>
+
+        <!-- Контейнер для ключей -->
+        <div id="test-results-generated-keys" class="hidden">
+          <div class="keys">
+            <!-- Сгенерированные ключи появятся здесь -->
+          </div>
+        </div>
+      </div>
+
+      <div id="notification" class="notification hidden"></div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <h1 class="marquee"><span>Не забывай отписываться в канале #pranker, чтобы ключи проросли в production</span></h1>
+    <p>Авторы – <a href="https://t.me/novikovdenis" target="_blank">@novikovdenis</a> 😺 и ChatGPT 🤖 для Практикума с любовью</p>
+  </footer>
+
+  <div class="notification" id="notification">Результат скопирован в буфер обмена</div>
+
+  <!-- Скрипты -->
+  <script>
+    // Ваш объединенный JavaScript код
+    document.addEventListener('DOMContentLoaded', () => {
+      // Обработчики для навигации
+      const mathButton = document.getElementById('mathematics-button');
+      const testsButton = document.getElementById('tests-button');
+      const autotestsButton = document.getElementById('autotests-button');
+      const keygenButton = document.getElementById('keygen-button');
+
+      const mathContainer = document.getElementById('mathematics-container');
+      const testsContainer = document.getElementById('tests-container');
+      const autotestsContainer = document.getElementById('autotests-container');
+      const keygenContainer = document.getElementById('keygen-container');
+
+      function hideAllSections() {
+        mathContainer.classList.add('hidden');
+        testsContainer.classList.add('hidden');
+        autotestsContainer.classList.add('hidden');
+        keygenContainer.classList.add('hidden');
+      }
+
+      mathButton.addEventListener('click', () => {
+        hideAllSections();
+        mathContainer.classList.remove('hidden');
+      });
+
+      testsButton.addEventListener('click', () => {
+        hideAllSections();
+        testsContainer.classList.remove('hidden');
+      });
+
+      autotestsButton.addEventListener('click', () => {
+        hideAllSections();
+        autotestsContainer.classList.remove('hidden');
+      });
+
+      keygenButton.addEventListener('click', () => {
+        hideAllSections();
+        keygenContainer.classList.remove('hidden');
+      });
+
+      // Код из первого сайта для форматирования текста
+      const mathForm = document.getElementById('math-form');
+      const result = document.querySelector('.result');
+      const dialogContainer = document.querySelector('.dialog-container');
+      const dialogOutput = document.querySelector('.dialog');
+      const copyButton = document.getElementById('copy-button');
+      const copyDialogButton = document.getElementById('copy-dialog-button');
+      const notification = document.getElementById('notification');
+
+      mathForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = mathForm.text.value;
+        const formattedText = formatText(removeDialogLines(text));
+        const formattedDialog = formatDialog(text);
+
+        result.textContent = formattedText;
+
+        if (formattedDialog) {
+          dialogOutput.textContent = formattedDialog;
+          dialogContainer.style.display = 'block';
+        } else {
+          dialogContainer.style.display = 'none';
+        }
+      });
+
+      copyButton.addEventListener('click', () => {
+        const text = result.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          showNotification('Результат скопирован в буфер обмена');
+        }, (err) => {
+          console.error('Ошибка при копировании: ', err);
+        });
+      });
+
+      copyDialogButton.addEventListener('click', () => {
+        const text = dialogOutput.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          showNotification('Диалог скопирован в буфер обмена');
+        }, (err) => {
+          console.error('Ошибка при копировании: ', err);
+        });
+      });
+
+      function formatText(text) {
+        const multilineFormulaRegex = /\$\$([\s\S]*?)\$\$/g;
+        text = text.replace(multilineFormulaRegex, (match, p1) => `{formula|multiline|align:center}\n${p1.trim()}\n{/formula}`);
+
+        const formulaRegex = /\$(.*?)\$/gs;
+        text = text.replace(formulaRegex, (match, p1) => `{formula}${p1}{/formula}`);
+
+        const asideRegex = /<aside>\s*(.*?)\s*<\/aside>/gs;
+        text = text.replace(asideRegex, (match, p1) => `{quiz-task}\n    background: |\n        #f5f6f7\n    content: |\n    ${p1}\n{/quiz-task}`);
+
+        const linkRegex = /https:\/\/code\.s3\.yandex\.net\/.*?\.html/g;
+        text = text.replace(linkRegex, (match) => `{iframe:${match}|minHeight:580px|minWidth:764px}`);
+
+        return text;
+      }
+
+      function formatDialog(text) {
+        const dialogRegex = /(Макс|Ульяна):\s*(.+)/gm;
+        const content = [];
+        let match;
+        while ((match = dialogRegex.exec(text)) !== null) {
+          const [_, character, message] = match;
+          const formattedCharacter = character === 'Макс' ? 'Max-new' : 'Ulyana';
+          const formattedMessage = formatText(message.trim());
+          content.push({
+            side: 'left',
+            type: 'text',
+            message: formattedMessage,
+            character: formattedCharacter
+          });
+        }
+        return content.length ? JSON.stringify({ content, type: 'Dialog' }, null, 2) : '';
+      }
+
+      function removeDialogLines(text) {
+        return text.replace(/^(Макс|Ульяна):\s*(.+)$/gm, '').trim();
+      }
+
+      function showNotification(message) {
+        notification.textContent = message;
+        notification.classList.add('show');
+        setTimeout(() => {
+          notification.classList.remove('show');
+        }, 3000);
+      }
+
+      // Код из первого сайта для тестов и автотестов
+      // ...
+
+      // Код из второго сайта для генератора ключей
+      // Поместите здесь код из файла script.js второго сайта, убедившись, что все идентификаторы совпадают
+
+      // Пример:
+      function showAssessmentFields() {
+        hideKeygenSections();
+        document.getElementById('assessment-fields').classList.remove('hidden');
+      }
+
+      function hideKeygenSections() {
+        document.getElementById('assessment-fields').classList.add('hidden');
+        document.getElementById('popup-fields').classList.add('hidden');
+        document.getElementById('review-status-fields').classList.add('hidden');
+        document.getElementById('characters-fields').classList.add('hidden');
+        document.getElementById('test-results-fields').classList.add('hidden');
+      }
+
+      // Продолжайте добавлять остальные функции из второго сайта
+      // Убедитесь, что все функции и обработчики событий правильно связаны с элементами на странице
+
+      // ...
+
+    });
+  </script>
+</body>
+</html>
